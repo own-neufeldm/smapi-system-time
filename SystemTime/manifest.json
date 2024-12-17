@@ -5,5 +5,7 @@
   "Description": "Show the current time of your system.",
   "UniqueID": "OwnNeufeldm.SystemTime",
   "EntryDll": "SystemTime.dll",
-  "UpdateKeys": []
+  "UpdateKeys": [
+    "GitHub:own-neufeldm/smapi-system-time"
+  ]
 }
