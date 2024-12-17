@@ -1,0 +1,9 @@
+{
+  "Name": "System Time",
+  "Author": "own-neufeldm",
+  "Version": "1.0.0",
+  "Description": "Show the current time of your system.",
+  "UniqueID": "OwnNeufeldm.SystemTime",
+  "EntryDll": "SystemTime.dll",
+  "UpdateKeys": []
+}

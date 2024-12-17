@@ -1,0 +1,10 @@
+= SMAPI - System Time
+:toc: auto
+
+== About
+
+Stardew Valley mod for displaying the current time of your system.
+
+== Controls
+
+Toggle on/off by pressing `Q` button on your keyboard.
