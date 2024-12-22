@@ -22,7 +22,7 @@ namespace SystemTime
       }
       helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
       helper.Events.Input.ButtonPressed += this.OnButtonPressed;
-      helper.Events.Display.RenderedStep += this.OnRenderedStep;
+      helper.Events.Display.RenderedHud += this.OnRenderedHud;
     }
 
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
@@ -65,7 +65,7 @@ namespace SystemTime
       this.Monitor.Log($"Toggled {state}.", LogLevel.Debug);
     }
 
-    private void OnRenderedStep(object? sender, RenderedStepEventArgs e)
+    private void OnRenderedHud(object? sender, RenderedHudEventArgs e)
     {
       if (this.Config is null || !this.Draw)
         return;
