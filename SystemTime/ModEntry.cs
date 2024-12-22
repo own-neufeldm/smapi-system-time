@@ -4,42 +4,79 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
-
 namespace SystemTime
 {
   internal sealed class ModEntry : Mod
   {
-    private bool draw = true;
-    private Texture2D? frame;
+    private ModConfig? Config;
+    private bool Draw = true;
+    private readonly Label Label = new();
 
     public override void Entry(IModHelper helper)
     {
-      this.frame = helper.GameContent.Load<Texture2D>("LooseSprites/textBox");
+      this.Config = helper.ReadConfig<ModConfig>();
+      if (!Styles.All().Contains(this.Config.Style))
+      {
+        this.Config.Style = Styles.Default;
+        helper.WriteConfig(this.Config);
+      }
+      helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
       helper.Events.Input.ButtonPressed += this.OnButtonPressed;
-      helper.Events.Display.Rendered += this.OnRendered;
+      helper.Events.Display.RenderedStep += this.OnRenderedStep;
+    }
+
+    private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
+    {
+      IGenericModConfigMenuApi? configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+      if (this.Config is null || configMenu is null)
+        return;
+
+      configMenu.Register(
+          mod: this.ModManifest,
+          reset: () => this.Config = new ModConfig(),
+          save: () => this.Helper.WriteConfig(this.Config)
+      );
+
+      configMenu.AddKeybindList(
+          mod: this.ModManifest,
+          name: () => "Toggle with:",
+          tooltip: () => "The keybinding with which you can toggle the label on/off.",
+          getValue: () => this.Config.ToggleKeybind,
+          setValue: value => this.Config.ToggleKeybind = value
+      );
+
+      configMenu.AddTextOption(
+          mod: this.ModManifest,
+          name: () => "Label style:",
+          tooltip: () => "Defines the frame and font to use for the label.",
+          getValue: () => this.Config.Style,
+          setValue: value => this.Config.Style = value,
+          allowedValues: Styles.All()
+      );
     }
 
     private void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
     {
-      if (!e.Button.Equals(SButton.Q))
-      {
+      if (this.Config is null || !this.Config.ToggleKeybind.JustPressed())
         return;
-      }
-      this.draw = !this.draw;
-      string state = this.draw ? "on" : "off";
+
+      this.Draw = !this.Draw;
+      string state = this.Draw ? "on" : "off";
       this.Monitor.Log($"Toggled {state}.", LogLevel.Debug);
     }
 
-    private void OnRendered(object? sender, RenderedEventArgs e)
+    private void OnRenderedStep(object? sender, RenderedStepEventArgs e)
     {
-      if (!this.draw)
-      {
+      if (this.Config is null || !this.Draw)
         return;
-      }
+
+      if (!this.Config.Style.Equals(this.Label.Style))
+        this.Label.LoadStyle(this.Config.Style, this.Helper);
+
       Vector2 positionFrame = new(0, 3);
       float scaleFrame = 0.8f;
       Game1.spriteBatch.Draw(
-        texture: this.frame,
+        texture: this.Label.Frame,
         position: positionFrame,
         sourceRectangle: null,
         color: Color.White,
@@ -49,10 +86,11 @@ namespace SystemTime
         effects: SpriteEffects.None,
         layerDepth: 1
       );
+
       Vector2 positionText = new(positionFrame.X + 48, positionFrame.Y + 4);
       string text = DateTime.Now.ToShortTimeString();
       Game1.spriteBatch.DrawString(
-        spriteFont: Game1.smallFont,
+        spriteFont: this.Label.Font,
         text: text,
         position: positionText,
         color: Color.Black
