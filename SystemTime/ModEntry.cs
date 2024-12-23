@@ -10,16 +10,14 @@ namespace SystemTime
   {
     private ModConfig? Config;
     private bool Draw = true;
-    private readonly Label Label = new();
+    private Texture2D? LabelTexture;
+    private SpriteFont? LabelFont;
 
     public override void Entry(IModHelper helper)
     {
       this.Config = helper.ReadConfig<ModConfig>();
-      if (!Styles.All().Contains(this.Config.Style))
-      {
-        this.Config.Style = Styles.Default;
-        helper.WriteConfig(this.Config);
-      }
+      this.LabelTexture = helper.GameContent.Load<Texture2D>("LooseSprites/textBox");
+      this.LabelFont = helper.GameContent.Load<SpriteFont>("Fonts/SmallFont");
       helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
       helper.Events.Input.ButtonPressed += this.OnButtonPressed;
       helper.Events.Display.RenderedHud += this.OnRenderedHud;
@@ -44,15 +42,6 @@ namespace SystemTime
           getValue: () => this.Config.ToggleKeybind,
           setValue: value => this.Config.ToggleKeybind = value
       );
-
-      configMenu.AddTextOption(
-          mod: this.ModManifest,
-          name: () => "Label style:",
-          tooltip: () => "Defines the frame and font to use for the label.",
-          getValue: () => this.Config.Style,
-          setValue: value => this.Config.Style = value,
-          allowedValues: Styles.All()
-      );
     }
 
     private void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
@@ -67,33 +56,43 @@ namespace SystemTime
 
     private void OnRenderedHud(object? sender, RenderedHudEventArgs e)
     {
-      if (this.Config is null || !this.Draw)
+      if (this.LabelFont is null || this.LabelTexture is null || !this.Draw)
         return;
 
-      if (!this.Config.Style.Equals(this.Label.Style))
-        this.Label.LoadStyle(this.Config.Style, this.Helper);
+      string text = DateTime.Now.ToShortTimeString();
+      Vector2 textSize = this.LabelFont.MeasureString(text);
+      Rectangle textureDestinationRectangle = new(
+        x: 0,
+        y: 2,
+        width: (int)(textSize.X + 12),
+        height: (int)textSize.Y
+      );
+      Vector2 textPosition = new(
+        x: textureDestinationRectangle.X + 7.5f,
+        y: textureDestinationRectangle.Y + 2.0f
+      );
 
-      Vector2 positionFrame = new(0, 3);
-      float scaleFrame = 0.8f;
       Game1.spriteBatch.Draw(
-        texture: this.Label.Frame,
-        position: positionFrame,
+        texture: this.LabelTexture,
+        destinationRectangle: textureDestinationRectangle,
         sourceRectangle: null,
         color: Color.White,
         rotation: 0,
         origin: Vector2.Zero,
-        scale: scaleFrame,
         effects: SpriteEffects.None,
         layerDepth: 1
       );
-
-      Vector2 positionText = new(positionFrame.X + 48, positionFrame.Y + 4);
-      string text = DateTime.Now.ToShortTimeString();
       Game1.spriteBatch.DrawString(
-        spriteFont: this.Label.Font,
+        spriteFont: this.LabelFont,
         text: text,
-        position: positionText,
+        position: textPosition,
         color: Color.Black
+      );
+      Game1.spriteBatch.DrawString(
+        spriteFont: this.LabelFont,
+        text: text,
+        position: textPosition + new Vector2(-1.5f, 1.5f),
+        color: Color.Black * 0.1f
       );
     }
   }
