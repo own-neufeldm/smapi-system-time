@@ -60,39 +60,19 @@ namespace SystemTime
         return;
 
       string text = DateTime.Now.ToShortTimeString();
-      Vector2 textSize = this.LabelFont.MeasureString(text);
-      Rectangle textureDestinationRectangle = new(
-        x: 0,
-        y: 2,
-        width: (int)(textSize.X + 12),
-        height: (int)textSize.Y
+      Game1.drawDialogueBox(
+        centerX: 100,
+        centerY: 17,
+        speaker: false,
+        drawOnlyBox: true,
+        message: text
       );
-      Vector2 textPosition = new(
-        x: textureDestinationRectangle.X + 7.5f,
-        y: textureDestinationRectangle.Y + 2.0f
-      );
-
-      Game1.spriteBatch.Draw(
-        texture: this.LabelTexture,
-        destinationRectangle: textureDestinationRectangle,
-        sourceRectangle: null,
-        color: Color.White,
-        rotation: 0,
-        origin: Vector2.Zero,
-        effects: SpriteEffects.None,
-        layerDepth: 1
-      );
-      Game1.spriteBatch.DrawString(
-        spriteFont: this.LabelFont,
+      Utility.drawTextWithShadow(
+        b: Game1.spriteBatch,
         text: text,
-        position: textPosition,
+        font: Game1.dialogueFont,
+        position: new Vector2(55, 25),
         color: Color.Black
-      );
-      Game1.spriteBatch.DrawString(
-        spriteFont: this.LabelFont,
-        text: text,
-        position: textPosition + new Vector2(-1.5f, 1.5f),
-        color: Color.Black * 0.1f
       );
     }
   }
