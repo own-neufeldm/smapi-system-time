@@ -112,7 +112,7 @@ namespace SystemTime
       this.TextBox.Draw(
         spriteBatch: Game1.spriteBatch,
         text: DateTime.Now.ToShortTimeString(),
-        position: new Vector2(300, 300),
+        position: new Vector2(75, 10),
         dimensions: new Vector2(80, 48)
       );
     }

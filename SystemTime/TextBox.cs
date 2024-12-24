@@ -8,15 +8,15 @@ namespace SystemTime
   {
     private readonly SpriteFont font;
     private readonly Texture2D texture;
-    private readonly Rectangle topLeftCornerRectangle = new(0, 0, 16, 16);
-    private readonly Rectangle topSideRectangle = new(16, 0, 16, 16);
-    private readonly Rectangle topRightCornerRectangle = new(172, 0, 16, 16);
-    private readonly Rectangle rightSideRectangle = new(172, 16, 16, 16);
-    private readonly Rectangle bottomRightCornerRectangle = new(172, 32, 16, 16);
-    private readonly Rectangle bottomSideRectangle = new(16, 32, 16, 16);
-    private readonly Rectangle bottomLeftCornerRectangle = new(0, 32, 16, 16);
-    private readonly Rectangle leftSideRectangle = new(0, 16, 16, 16);
-    private readonly Rectangle centerRectangle = new(16, 16, 16, 16);
+    private readonly Rectangle topLeftCornerRectangle;
+    private readonly Rectangle topSideRectangle;
+    private readonly Rectangle topRightCornerRectangle;
+    private readonly Rectangle rightSideRectangle;
+    private readonly Rectangle bottomRightCornerRectangle;
+    private readonly Rectangle bottomSideRectangle;
+    private readonly Rectangle bottomLeftCornerRectangle;
+    private readonly Rectangle leftSideRectangle;
+    private readonly Rectangle centerRectangle;
 
     public TextBox()
     {
@@ -25,6 +25,15 @@ namespace SystemTime
         Game1.content.Load<Texture2D>("LooseSprites/textBox"),
         sourceRectangle: new Rectangle(4, 0, 188, 48)
       );
+      this.topLeftCornerRectangle = new(0, 0, 16, 16);
+      this.topSideRectangle = new(16, 0, 16, 16);
+      this.topRightCornerRectangle = new(172, 0, 16, 16);
+      this.rightSideRectangle = new(172, 16, 16, 16);
+      this.bottomRightCornerRectangle = new(172, 32, 16, 16);
+      this.bottomSideRectangle = new(16, 32, 16, 16);
+      this.bottomLeftCornerRectangle = new(0, 32, 16, 16);
+      this.leftSideRectangle = new(0, 16, 16, 16);
+      this.centerRectangle = new(16, 16, 16, 16);
     }
 
     public void Draw(
@@ -37,7 +46,7 @@ namespace SystemTime
       Vector2 textDimensions = this.font.MeasureString(text);
       if (dimensions.Equals(Vector2.Zero))
         dimensions = new(
-          Math.Max(32, (((int)textDimensions.X / 16) + 1) * 16) + 16,
+          Math.Max(32, (((int)textDimensions.X / 16) + 1) * 16),
           Math.Max(32, (((int)textDimensions.Y / 16) + 1) * 16)
         );
 
