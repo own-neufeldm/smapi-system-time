@@ -5,6 +5,6 @@ namespace SystemTime
   public sealed class ModConfig
   {
     public KeybindList ToggleKeybind { get; set; } = KeybindList.Parse("Q");
-    public string DrawOn { get; set; } = DrawOns.Rendered;
+    public string Visibility { get; set; } = SystemTime.Visibility.Always;
   }
 }

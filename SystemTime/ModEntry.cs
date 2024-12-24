@@ -1,31 +1,25 @@
 ﻿using System.Reflection;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace SystemTime
 {
-  public static class DrawOns
+  public static class Visibility
   {
-    public static readonly string Rendered = "Rendered";
-    public static readonly string RenderedActiveMenu = "Rendered active menu";
-    public static readonly string RenderedHud = "Rendered HUD";
-    public static readonly string RenderedStep = "Rendered step";
-    public static readonly string RenderedWorld = "Rendered world";
+    public static readonly string Always = "Always";
+    public static readonly string WhilePlaying = "While playing";
 
-    public static List<string> All()
+    public static List<string> GetAll()
     {
       List<string> all = new();
-
-      foreach (FieldInfo fieldInfo in typeof(DrawOns).GetFields())
+      foreach (FieldInfo fieldInfo in typeof(Visibility).GetFields())
       {
         string? value = (string?)fieldInfo.GetValue(null);
         if (value is not null)
           all.Add(value);
       }
-
       return all;
     }
   }
@@ -33,23 +27,17 @@ namespace SystemTime
   internal sealed class ModEntry : Mod
   {
     private ModConfig? Config;
+    private TextBox? TextBox;
     private bool Draw = true;
-    private Texture2D? LabelTexture;
-    private SpriteFont? LabelFont;
 
     public override void Entry(IModHelper helper)
     {
       this.Config = helper.ReadConfig<ModConfig>();
-      this.LabelTexture = helper.GameContent.Load<Texture2D>("LooseSprites/textBox");
-      this.LabelFont = helper.GameContent.Load<SpriteFont>("Fonts/SmallFont");
+      this.TextBox = new(helper.GameContent);
       helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
       helper.Events.Input.ButtonPressed += this.OnButtonPressed;
-
       helper.Events.Display.Rendered += this.OnRendered;
-      helper.Events.Display.RenderedActiveMenu += this.OnRenderedActiveMenu;
       helper.Events.Display.RenderedHud += this.OnRenderedHud;
-      helper.Events.Display.RenderedStep += this.OnRenderedStep;
-      helper.Events.Display.RenderedWorld += this.OnRenderedWorld;
     }
 
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
@@ -71,13 +59,14 @@ namespace SystemTime
           getValue: () => this.Config.ToggleKeybind,
           setValue: value => this.Config.ToggleKeybind = value
       );
+
       configMenu.AddTextOption(
           mod: this.ModManifest,
-          name: () => "Draw on:",
-          tooltip: () => "When to draw the label in the rendering process.",
-          getValue: () => this.Config.DrawOn,
-          setValue: value => this.Config.DrawOn = value,
-          allowedValues: DrawOns.All().ToArray()
+          name: () => "Visible when:",
+          tooltip: () => "Defines when the label should be visible.",
+          getValue: () => this.Config.Visibility,
+          setValue: value => this.Config.Visibility = value,
+          allowedValues: Visibility.GetAll().ToArray()
       );
     }
 
@@ -93,63 +82,37 @@ namespace SystemTime
 
     private void OnRendered(object? sender, RenderedEventArgs e)
     {
-      if (this.Config is null || !this.Config.DrawOn.Equals(DrawOns.Rendered))
+      if (
+        this.Config is null ||
+        !this.Draw ||
+        !this.Config.Visibility.Equals(Visibility.Always)
+      )
         return;
 
-      this.DrawLabel();
-    }
-
-    private void OnRenderedActiveMenu(object? sender, RenderedActiveMenuEventArgs e)
-    {
-      if (this.Config is null || !this.Config.DrawOn.Equals(DrawOns.RenderedActiveMenu))
-        return;
-
-      this.DrawLabel();
+      this.DrawTextBox();
     }
 
     private void OnRenderedHud(object? sender, RenderedHudEventArgs e)
     {
-      if (this.Config is null || !this.Config.DrawOn.Equals(DrawOns.RenderedHud))
+      if (
+        this.Config is null ||
+        !this.Draw ||
+        !this.Config.Visibility.Equals(Visibility.WhilePlaying)
+      )
         return;
 
-      this.DrawLabel();
+      this.DrawTextBox();
     }
 
-    private void OnRenderedStep(object? sender, RenderedStepEventArgs e)
+    private void DrawTextBox()
     {
-      if (this.Config is null || !this.Config.DrawOn.Equals(DrawOns.RenderedStep))
+      if (this.TextBox is null)
         return;
 
-      this.DrawLabel();
-    }
-
-    private void OnRenderedWorld(object? sender, RenderedWorldEventArgs e)
-    {
-      if (this.Config is null || !this.Config.DrawOn.Equals(DrawOns.RenderedWorld))
-        return;
-
-      this.DrawLabel();
-    }
-
-    private void DrawLabel()
-    {
-      if (this.LabelFont is null || this.LabelTexture is null || !this.Draw)
-        return;
-
-      string text = DateTime.Now.ToShortTimeString();
-      Game1.drawDialogueBox(
-        centerX: 100,
-        centerY: 17,
-        speaker: false,
-        drawOnlyBox: true,
-        message: text
-      );
-      Utility.drawTextWithShadow(
-        b: Game1.spriteBatch,
-        text: text,
-        font: Game1.dialogueFont,
-        position: new Vector2(55, 25),
-        color: Color.Black
+      this.TextBox.Draw(
+        spriteBatch: Game1.spriteBatch,
+        text: DateTime.Now.ToShortTimeString(),
+        position: new Vector2(100, 100)
       );
     }
   }
