@@ -113,7 +113,8 @@ namespace SystemTime
         spriteBatch: Game1.spriteBatch,
         text: DateTime.Now.ToShortTimeString(),
         position: new Vector2(75, 10),
-        dimensions: new Vector2(80, 48)
+        dimensions: Vector2.Zero,
+        textOffset: new Vector2(0, 2)
       );
     }
   }

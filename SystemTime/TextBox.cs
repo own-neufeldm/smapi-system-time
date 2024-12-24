@@ -8,15 +8,15 @@ namespace SystemTime
   {
     private readonly SpriteFont font;
     private readonly Texture2D texture;
-    private readonly Rectangle topLeftCornerRectangle;
-    private readonly Rectangle topSideRectangle;
-    private readonly Rectangle topRightCornerRectangle;
-    private readonly Rectangle rightSideRectangle;
-    private readonly Rectangle bottomRightCornerRectangle;
-    private readonly Rectangle bottomSideRectangle;
-    private readonly Rectangle bottomLeftCornerRectangle;
-    private readonly Rectangle leftSideRectangle;
-    private readonly Rectangle centerRectangle;
+    private readonly Rectangle topLeftCorner;
+    private readonly Rectangle topSide;
+    private readonly Rectangle topRightCorner;
+    private readonly Rectangle leftSide;
+    private readonly Rectangle centerPiece;
+    private readonly Rectangle rightSide;
+    private readonly Rectangle bottomLeftCorner;
+    private readonly Rectangle bottomSide;
+    private readonly Rectangle bottomRightCorner;
 
     public TextBox()
     {
@@ -25,60 +25,59 @@ namespace SystemTime
         Game1.content.Load<Texture2D>("LooseSprites/textBox"),
         sourceRectangle: new Rectangle(4, 0, 188, 48)
       );
-      // TODO: change rectangle dimensions
-      // -> corners can be 24x24, since 48 is the minimum total height 
-      // -> left and right can be 24x24, since 24 is the minimum height per line 
-      // -> top, bottom and center can be so small as 1x24 for granular scaling
-      this.topLeftCornerRectangle = new(0, 0, 16, 16);
-      this.topSideRectangle = new(16, 0, 16, 16);
-      this.topRightCornerRectangle = new(172, 0, 16, 16);
-      this.rightSideRectangle = new(172, 16, 16, 16);
-      this.bottomRightCornerRectangle = new(172, 32, 16, 16);
-      this.bottomSideRectangle = new(16, 32, 16, 16);
-      this.bottomLeftCornerRectangle = new(0, 32, 16, 16);
-      this.leftSideRectangle = new(0, 16, 16, 16);
-      this.centerRectangle = new(16, 16, 16, 16);
+      this.topLeftCorner = new(0, 0, 24, 24);
+      this.topSide = new(12, 0, 1, 24);
+      this.topRightCorner = new(164, 0, 24, 24);
+      this.leftSide = new(0, 12, 24, 24);
+      this.centerPiece = new(4, 12, 1, 24);
+      this.rightSide = new(164, 12, 24, 24);
+      this.bottomLeftCorner = new(0, 24, 24, 24);
+      this.bottomSide = new(12, 24, 1, 24);
+      this.bottomRightCorner = new(164, 24, 24, 24);
     }
 
     public void Draw(
       SpriteBatch spriteBatch,
       string text,
       Vector2 position,
-      Vector2 dimensions // use Vector2.Zero for auto-fit
+      Vector2 dimensions, // use Vector2.Zero for auto-fit
+      Vector2 textOffset // use Vector2(0, 2) for displaying only digits
     )
     {
+      int factor = 24;
       Vector2 textDimensions = this.font.MeasureString(text);
       if (dimensions.Equals(Vector2.Zero))
         dimensions = new(
-          Math.Max(32, (((int)textDimensions.X / 16) + 1) * 16),
-          Math.Max(32, (((int)textDimensions.Y / 16) + 1) * 16)
+          Math.Max(48, (int)textDimensions.X + factor),
+          Math.Max(48, (((int)textDimensions.Y / factor) + 1) * factor)
         );
 
-      for (int offsetX = 0; offsetX < dimensions.X; offsetX += 16)
+      Rectangle sourceRectangle = this.topLeftCorner;
+      for (int offsetX = 0; offsetX < dimensions.X; offsetX += sourceRectangle.Width)
       {
-        for (int offsetY = 0; offsetY < dimensions.Y; offsetY += 16)
+        for (int offsetY = 0; offsetY < dimensions.Y; offsetY += factor)
         {
-          Rectangle sourceRectangle;
           if (offsetX == 0 && offsetY == 0)
-            sourceRectangle = this.topLeftCornerRectangle;
-          else if (offsetX == 0 && offsetY < (dimensions.Y - 16))
-            sourceRectangle = this.leftSideRectangle;
-          else if (offsetX == 0 && offsetY == (dimensions.Y - 16))
-            sourceRectangle = this.bottomLeftCornerRectangle;
-          else if (offsetX < (dimensions.X - 16) && offsetY == 0)
-            sourceRectangle = this.topSideRectangle;
-          else if (offsetX < (dimensions.X - 16) && offsetY < (dimensions.Y - 16))
-            sourceRectangle = this.centerRectangle;
-          else if (offsetX < (dimensions.X - 16) && offsetY == (dimensions.Y - 16))
-            sourceRectangle = this.bottomSideRectangle;
-          else if (offsetX == (dimensions.X - 16) && offsetY == 0)
-            sourceRectangle = this.topRightCornerRectangle;
-          else if (offsetX == (dimensions.X - 16) && offsetY < (dimensions.Y - 16))
-            sourceRectangle = this.rightSideRectangle;
-          else if (offsetX == (dimensions.X - 16) && offsetY == (dimensions.Y - 16))
-            sourceRectangle = this.bottomRightCornerRectangle;
+            sourceRectangle = this.topLeftCorner;
+          else if (offsetX == 0 && offsetY < (dimensions.Y - factor))
+            sourceRectangle = this.leftSide;
+          else if (offsetX == 0 && offsetY == (dimensions.Y - factor))
+            sourceRectangle = this.bottomLeftCorner;
+          else if (offsetX < (dimensions.X - topRightCorner.Width) && offsetY == 0)
+            sourceRectangle = this.topSide;
+          else if (offsetX < (dimensions.X - topRightCorner.Width) && offsetY < (dimensions.Y - factor))
+            sourceRectangle = this.centerPiece;
+          else if (offsetX < (dimensions.X - topRightCorner.Width) && offsetY == (dimensions.Y - factor))
+            sourceRectangle = this.bottomSide;
+          else if (offsetX == (dimensions.X - topRightCorner.Width) && offsetY == 0)
+            sourceRectangle = this.topRightCorner;
+          else if (offsetX == (dimensions.X - topRightCorner.Width) && offsetY < (dimensions.Y - factor))
+            sourceRectangle = this.rightSide;
+          else if (offsetX == (dimensions.X - topRightCorner.Width) && offsetY == (dimensions.Y - factor))
+            sourceRectangle = this.bottomRightCorner;
           else
-            // dimensions are not divisible by 16, texture will be incomplete
+            // in theory this case will never happen, because width can be
+            // drawn per pixel and height is forced to be a multiple of 24  
             continue;
 
           Vector2 offsetPosition = new(
@@ -96,10 +95,8 @@ namespace SystemTime
 
 
       Vector2 textPosition = new(
-        position.X + dimensions.X / 2 - textDimensions.X / 2,
-        // offset by additional 2 pixel, for unknown reasons text is too high
-        // -> maybe because the texture map for this font is not "clean"
-        position.Y + dimensions.Y / 2 - textDimensions.Y / 2 + 2
+        position.X + dimensions.X / 2 - textDimensions.X / 2 + textOffset.X,
+        position.Y + dimensions.Y / 2 - textDimensions.Y / 2 + textOffset.Y
       );
 
       spriteBatch.DrawString(
