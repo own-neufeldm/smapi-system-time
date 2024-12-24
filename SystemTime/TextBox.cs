@@ -41,7 +41,7 @@ namespace SystemTime
       string text,
       Vector2 position,
       Vector2 dimensions, // use Vector2.Zero for auto-fit
-      Vector2 textOffset // use Vector2(0, 2) for displaying only digits
+      Vector2 textOffset
     )
     {
       int factor = 24;
@@ -76,7 +76,7 @@ namespace SystemTime
           else if (offsetX == (dimensions.X - topRightCorner.Width) && offsetY == (dimensions.Y - factor))
             sourceRectangle = this.bottomRightCorner;
           else
-            // in theory this case will never happen, because width can be
+            // in theory, this case will never happen because width can be
             // drawn per pixel and height is forced to be a multiple of 24  
             continue;
 
