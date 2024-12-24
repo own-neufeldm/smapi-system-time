@@ -25,6 +25,10 @@ namespace SystemTime
         Game1.content.Load<Texture2D>("LooseSprites/textBox"),
         sourceRectangle: new Rectangle(4, 0, 188, 48)
       );
+      // TODO: change rectangle dimensions
+      // -> corners can be 24x24, since 48 is the minimum total height 
+      // -> left and right can be 24x24, since 24 is the minimum height per line 
+      // -> top, bottom and center can be so small as 1x24 for granular scaling
       this.topLeftCornerRectangle = new(0, 0, 16, 16);
       this.topSideRectangle = new(16, 0, 16, 16);
       this.topRightCornerRectangle = new(172, 0, 16, 16);
