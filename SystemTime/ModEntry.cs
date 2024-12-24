@@ -33,7 +33,7 @@ namespace SystemTime
     public override void Entry(IModHelper helper)
     {
       this.Config = helper.ReadConfig<ModConfig>();
-      this.TextBox = new(helper.GameContent);
+      this.TextBox = new();
       helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
       helper.Events.Input.ButtonPressed += this.OnButtonPressed;
       helper.Events.Display.Rendered += this.OnRendered;
@@ -112,7 +112,8 @@ namespace SystemTime
       this.TextBox.Draw(
         spriteBatch: Game1.spriteBatch,
         text: DateTime.Now.ToShortTimeString(),
-        position: new Vector2(100, 100)
+        position: new Vector2(300, 300),
+        dimensions: new Vector2(80, 48)
       );
     }
   }
