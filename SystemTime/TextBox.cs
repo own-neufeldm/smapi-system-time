@@ -93,12 +93,10 @@ namespace SystemTime
         }
       }
 
-
       Vector2 textPosition = new(
         position.X + dimensions.X / 2 - textDimensions.X / 2 + textOffset.X,
         position.Y + dimensions.Y / 2 - textDimensions.Y / 2 + textOffset.Y
       );
-
       spriteBatch.DrawString(
         spriteFont: this.font,
         text: text,
