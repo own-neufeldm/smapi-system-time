@@ -111,10 +111,10 @@ namespace SystemTime
 
       this.TextBox.Draw(
         spriteBatch: Game1.spriteBatch,
-        text: DateTime.Now.ToShortTimeString(),
+        text: DateTime.Now.ToString("hh:mm"),
         position: new Vector2(75, 10),
-        dimensions: new Vector2(90, 48), // ideal width for 11:11 time
-        textOffset: new Vector2(0, 2) // ideal height for digits only
+        dimensions: new Vector2(90, 48), // ideal for 00:00 text
+        textOffset: new Vector2(0, 2) // ideal for displaying time
       );
     }
   }
