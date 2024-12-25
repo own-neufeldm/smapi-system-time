@@ -1,29 +1,10 @@
-﻿using System.Reflection;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace SystemTime
 {
-  public static class Visibility
-  {
-    public static readonly string Always = "Always";
-    public static readonly string WhilePlaying = "While playing";
-
-    public static List<string> GetAll()
-    {
-      List<string> all = new();
-      foreach (FieldInfo fieldInfo in typeof(Visibility).GetFields())
-      {
-        string? value = (string?)fieldInfo.GetValue(null);
-        if (value is not null)
-          all.Add(value);
-      }
-      return all;
-    }
-  }
-
   internal sealed class ModEntry : Mod
   {
     private ModConfig? Config;
@@ -66,7 +47,16 @@ namespace SystemTime
           tooltip: () => "Defines when the label should be visible.",
           getValue: () => this.Config.Visibility,
           setValue: value => this.Config.Visibility = value,
-          allowedValues: Visibility.GetAll().ToArray()
+          allowedValues: Utils.Visibility.GetValues()
+      );
+
+      configMenu.AddTextOption(
+          mod: this.ModManifest,
+          name: () => "Time format:",
+          tooltip: () => "Format to use when drawing time.",
+          getValue: () => this.Config.TimeFormat,
+          setValue: value => this.Config.TimeFormat = value,
+          allowedValues: Utils.TimeFormat.GetValues()
       );
     }
 
@@ -85,7 +75,7 @@ namespace SystemTime
       if (
         this.Config is null ||
         !this.Draw ||
-        !this.Config.Visibility.Equals(Visibility.Always)
+        !this.Config.Visibility.Equals(Utils.Visibility.Always)
       )
         return;
 
@@ -97,7 +87,7 @@ namespace SystemTime
       if (
         this.Config is null ||
         !this.Draw ||
-        !this.Config.Visibility.Equals(Visibility.WhilePlaying)
+        !this.Config.Visibility.Equals(Utils.Visibility.WhilePlaying)
       )
         return;
 
@@ -106,12 +96,12 @@ namespace SystemTime
 
     private void DrawTextBox()
     {
-      if (this.TextBox is null)
+      if (this.Config is null || this.TextBox is null)
         return;
 
       this.TextBox.Draw(
         spriteBatch: Game1.spriteBatch,
-        text: DateTime.Now.ToString("hh:mm"),
+        text: DateTime.Now.ToString(this.Config.TimeFormat),
         position: new Vector2(75, 10),
         dimensions: new Vector2(90, 48), // ideal for 00:00 text
         textOffset: new Vector2(0, 2) // ideal for displaying time
