@@ -29,7 +29,7 @@ namespace SystemTime
       this.topSide = new(12, 0, 1, 24);
       this.topRightCorner = new(164, 0, 24, 24);
       this.leftSide = new(0, 12, 24, 24);
-      this.centerPiece = new(4, 12, 1, 24);
+      this.centerPiece = new(8, 12, 1, 24);
       this.rightSide = new(164, 12, 24, 24);
       this.bottomLeftCorner = new(0, 24, 24, 24);
       this.bottomSide = new(12, 24, 1, 24);
